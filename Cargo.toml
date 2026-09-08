@@ -1,0 +1,16 @@
+[package]
+name = "rollbacker"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "rollbacker"
+path = "src/rollbacker/main.rs"
+
+[[bin]]
+name = "systemd-rollbacker-generator"
+path = "src/systemd-rollbacker-generator/main.rs"
+
+[dependencies]
+lexopt = "0.3.2"
+tfg-helpers = { git = "https://codeberg.org/thefossguy/tfg-helpers.git", tag = "v0.1.0" }
