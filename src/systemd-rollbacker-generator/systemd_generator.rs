@@ -8,8 +8,7 @@ use std::process::Command;
 use tfg_helpers::command_helpers::CommandOutputStatus;
 use tfg_helpers::{get_process_stderr, log_then_output, make_formatted_error};
 
-//pub const SYSTEMD_GENERATOR_DIR: &str = "/run/systemd/system";
-pub const SYSTEMD_GENERATOR_DIR: &str = "/home/pratham/my-git-repos/pratham/staging/rollbacker";
+pub const SYSTEMD_GENERATOR_DIR: &str = "/run/systemd/system";
 
 fn strip_multi_line_prefix(target_string: &str) -> String {
     target_string
