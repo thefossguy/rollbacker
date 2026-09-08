@@ -183,9 +183,7 @@ pub fn generate_systemd_services(
     let systemctl_daemon_reload_process_result = log_then_output!(systemctl_daemon_reload_cmd);
     if (&systemctl_daemon_reload_process_result).was_process_successful() {
         let mut systemctl_enable_cmd = Command::new("systemctl");
-        systemctl_enable_cmd
-            .arg("enable")
-            .args(systemd_units_to_enable.iter().collect::<Vec<&String>>());
+        systemctl_enable_cmd.args(systemd_units_to_enable.iter().collect::<Vec<&String>>());
         let systemctl_enable_process_result = log_then_output!(systemctl_enable_cmd);
         if (&systemctl_enable_process_result).was_process_successful() {
             Ok(())
