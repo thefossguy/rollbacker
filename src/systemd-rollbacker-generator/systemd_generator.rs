@@ -88,7 +88,7 @@ fn generate_systemd_btrfs_services(
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=/usr/bin/env bash -c 'rollbacker --filesystem-type {} --fresh-snapshot-suffix {} --superblock-path {mount_path} && systemctl stop {superblock_mount_unit_path}'
+        ExecStart=rollbacker --filesystem-type {} --fresh-snapshot-suffix {} --superblock-path {mount_path}
         ", superblock_entry.filesystem_type, systemd_rollbacker_generator_config.fresh_snapshot_suffix).as_str());
     if let Err(e) = fs::write(&rollback_service_unit_path, rollback_service_unit_contents) {
         return Err(format!(
