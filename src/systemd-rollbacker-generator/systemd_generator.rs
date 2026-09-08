@@ -42,6 +42,7 @@ fn generate_systemd_btrfs_services(
     systemd_rollbacker_generator_config: &SystemdRollbackerGeneratorConfig,
     superblock_entry: &SuperblockEntry,
     device_mount_paths: &DeviceMountPaths,
+    arg0_bin_dir: &str,
 ) -> Result<(), Box<dyn Error>> {
     let mount_units = convert_device_mount_paths_to_mount_units(device_mount_paths);
     let mount_path = superblock_entry.mount_path.clone().unwrap();
@@ -88,7 +89,7 @@ fn generate_systemd_btrfs_services(
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=rollbacker --filesystem-type {} --fresh-snapshot-suffix {} --superblock-path {mount_path}
+        ExecStart={arg0_bin_dir}/rollbacker --filesystem-type {} --fresh-snapshot-suffix {} --superblock-path {mount_path}
         ", superblock_entry.filesystem_type, systemd_rollbacker_generator_config.fresh_snapshot_suffix).as_str());
     if let Err(e) = fs::write(&rollback_service_unit_path, rollback_service_unit_contents) {
         return Err(format!(
@@ -104,6 +105,7 @@ fn generate_systemd_zfs_services(
     systemd_rollbacker_generator_config: &SystemdRollbackerGeneratorConfig,
     superblock_entry: &SuperblockEntry,
     device_mount_paths: &DeviceMountPaths,
+    arg0_bin_dir: &str,
 ) -> Result<(), Box<dyn Error>> {
     let mount_units = convert_device_mount_paths_to_mount_units(device_mount_paths);
     let mount_path = superblock_entry.device.clone();
@@ -121,7 +123,7 @@ fn generate_systemd_zfs_services(
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=rollbacker --filesystem-type {} --fresh-snapshot-suffix {} --superblock-path {mount_path}
+        ExecStart={arg0_bin_dir}/rollbacker --filesystem-type {} --fresh-snapshot-suffix {} --superblock-path {mount_path}
         ", superblock_entry.device, superblock_entry.device, superblock_entry.filesystem_type, systemd_rollbacker_generator_config.fresh_snapshot_suffix).as_str());
     if let Err(e) = fs::write(&rollback_service_unit_path, rollback_service_unit_contents) {
         return Err(format!(
@@ -136,6 +138,7 @@ fn generate_systemd_zfs_services(
 pub fn generate_systemd_services(
     systemd_rollbacker_generator_config: &SystemdRollbackerGeneratorConfig,
     parsed_fstab: &ParsedFstab,
+    arg0_bin_dir: &str,
 ) -> Result<(), Box<dyn Error>> {
     for (superblock_entry, device_mount_paths) in parsed_fstab {
         match superblock_entry.filesystem_type {
@@ -143,11 +146,13 @@ pub fn generate_systemd_services(
                 systemd_rollbacker_generator_config,
                 superblock_entry,
                 device_mount_paths,
+                arg0_bin_dir,
             )?,
             FilesystemType::Zfs => generate_systemd_zfs_services(
                 systemd_rollbacker_generator_config,
                 superblock_entry,
                 device_mount_paths,
+                arg0_bin_dir,
             )?,
             _ => eprintln!(
                 "The filesystem '{}' does not support rollbacks, generating nothing",
