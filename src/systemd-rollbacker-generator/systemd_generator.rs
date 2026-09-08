@@ -3,10 +3,12 @@ use crate::fstab::{DeviceMountPaths, FilesystemType, ParsedFstab, SuperblockEntr
 
 use std::error::Error;
 use std::fs;
+use std::process::Command;
 
-use tfg_helpers::make_formatted_error;
+use tfg_helpers::command_helpers::CommandOutputStatus;
+use tfg_helpers::{get_process_stderr, log_then_output, make_formatted_error};
 
-pub const SYSTEMD_GENERATOR_DIR: &str = "/run/systemd/generator";
+pub const SYSTEMD_GENERATOR_DIR: &str = "/run/systemd/system";
 
 fn strip_multi_line_prefix(target_string: &str) -> String {
     target_string
@@ -154,5 +156,17 @@ pub fn generate_systemd_services(
         }
     }
 
-    Ok(())
+    let mut systemctl_daemon_reload_cmd = Command::new("systemctl");
+    systemctl_daemon_reload_cmd.arg("daemon-reload");
+    let systemctl_daemon_reload_process_result = log_then_output!(systemctl_daemon_reload_cmd);
+    if (&systemctl_daemon_reload_process_result).was_process_successful() {
+        Ok(())
+    } else {
+        let systemctl_daemon_reload_process_output = systemctl_daemon_reload_process_result?;
+        Err(format!(
+            "The command to reload the systemd manager configuration failed{}",
+            get_process_stderr!(systemctl_daemon_reload_process_output)
+        )
+        .into())
+    }
 }
