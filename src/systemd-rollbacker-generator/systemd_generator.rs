@@ -27,14 +27,30 @@ fn convert_device_mount_paths_to_mount_units(device_mount_paths: &DeviceMountPat
         .join(" ")
 }
 
-fn systemd_escape(device_path: &str) -> String {
-    if device_path == "/" {
+fn escape_char(c: u8) -> String {
+    format!("\\x{c:02x}")
+}
+fn is_valid_char(c: u8) -> bool {
+    c.is_ascii_alphanumeric() || b":_.\\".contains(&c)
+}
+fn systemd_escape(path: &str) -> String {
+    let stripped_path = path.trim_matches('/');
+    if stripped_path.is_empty() {
         "-".to_string()
     } else {
-        device_path
-            .replacen('/', "", 1)
-            .replace('-', "\\x2d")
-            .replace('/', "-")
+        let mut escaped_path = String::with_capacity(stripped_path.len() * 4);
+        for (i, &b) in stripped_path.as_bytes().iter().enumerate() {
+            if i == 0 && b == b'.' {
+                escaped_path.push_str(&escape_char(b));
+            } else if b == b'/' {
+                escaped_path.push('-');
+            } else if b == b'-' || b == b'\\' || !is_valid_char(b) {
+                escaped_path.push_str(&escape_char(b));
+            } else {
+                escaped_path.push(b as char)
+            }
+        }
+        escaped_path
     }
 }
 
