@@ -3,6 +3,7 @@ name = "rollbacker"
 description = "rollbacker? I hardly know 'er!"
 version = "0.1.0"
 edition = "2024"
+license = "GPL-2.0-only" # https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 [dependencies]
 lexopt = "0.3.2"
