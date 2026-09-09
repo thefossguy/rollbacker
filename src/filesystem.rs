@@ -125,20 +125,7 @@ fn rollback_btrfs_subvolume(rollbacker_config: &RollbackerConfig) -> Result<(), 
             }
         }
     }
-
-    let mut umount_cmd = Command::new("umount");
-    umount_cmd.arg(&rollbacker_config.superblock_path);
-    let umount_process_result = log_then_output!(umount_cmd);
-    if (&umount_process_result).was_process_successful() {
-        Ok(())
-    } else {
-        let umount_process_output = umount_process_result?;
-        Err(format!(
-            "The command to unmount the toplevel btrfs subvolume{}",
-            get_process_stderr!(umount_process_output)
-        )
-        .into())
-    }
+    Ok(())
 }
 
 fn discover_zfs_datasets_and_snapshots(
