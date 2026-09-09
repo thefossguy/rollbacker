@@ -118,7 +118,10 @@ fn rollback_btrfs_subvolume(rollbacker_config: &RollbackerConfig) -> Result<(), 
         if btrfs_subvol.ends_with(&rollbacker_config.fresh_snapshot_suffix) {
             let matching_subvolume_name = btrfs_subvol
                 .chars()
-                .take(rollbacker_config.fresh_snapshot_suffix.len() + 1)
+                .take(
+                    btrfs_subvol.chars().count()
+                        - rollbacker_config.fresh_snapshot_suffix.chars().count(),
+                )
                 .collect::<String>();
             if all_btrfs_subvolumes.contains(&matching_subvolume_name) {
                 rollback_btrfs_subvolume_inner(&matching_subvolume_name, btrfs_subvol)?;
@@ -200,7 +203,10 @@ fn rollback_zfs_dataset(rollbacker_config: &RollbackerConfig) -> Result<(), Box<
         if zfs_dataset_or_snapshot.ends_with(&rollbacker_config.fresh_snapshot_suffix) {
             let matching_zfs_dataset_name = zfs_dataset_or_snapshot
                 .chars()
-                .take(rollbacker_config.fresh_snapshot_suffix.len() + 1)
+                .take(
+                    zfs_dataset_or_snapshot.chars().count()
+                        - rollbacker_config.fresh_snapshot_suffix.chars().count(),
+                )
                 .collect::<String>();
             if all_zfs_datasets_and_snapshots.contains(&matching_zfs_dataset_name) {
                 rollback_zfs_dataset_inner(&matching_zfs_dataset_name, zfs_dataset_or_snapshot)?;
