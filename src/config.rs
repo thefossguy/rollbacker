@@ -79,16 +79,16 @@ pub fn configure() -> Result<RollbackerConfig, Box<dyn Error>> {
     let Some(fresh_snapshot_suffix) = fresh_snapshot_suffix else {
         return Err("`--fresh-snapshot-suffix` must be specified".into());
     };
-    let superblock_path = if let Some(superblock_path) = superblock_path {
-        if filesystem_type != FilesystemType::Zfs && std::path::Path::new(&superblock_path).exists()
+    let superblock_path = if let Some(superblock_path_inner) = superblock_path {
+        if filesystem_type != FilesystemType::Zfs
+            && !std::path::Path::new(&superblock_path_inner).exists()
         {
-            superblock_path
-        } else {
             return Err(format!(
-                "The specified superblock path '{superblock_path}' does not exist"
+                "The specified superblock path '{superblock_path_inner}' does not exist"
             )
             .into());
         }
+        superblock_path_inner
     } else {
         return Err("`--superblock-path` must be specified".into());
     };
